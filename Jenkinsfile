@@ -1,31 +1,46 @@
 pipeline {
-    agent {
-        label {
-            label 'built-in'
-            customWorkspace '/mnt/jenkins-master'
-        }
-    }
-    tools {
-        maven 'mvn'
-    }
-    environment {
-        url1 = "https://github.com/sayalip848/project.git"
-        url2 = "https://github.com/sayalip848/project-repo.git -b ansible"
-    }
-    stages {
-        stage ('git-checkout') {
-            steps {
-                sh "git clone ${url1}"
-                sh "git clone ${url2}"
-            }
-        }
-        stage ('build-project') {
-            steps {
-                sh "mvn clean install"
-            }
-        }
-        stage ('deploy-dev') {
-            sh "cd ansible && ansible-playbook mydevplaybook.yml"
-        }
-    }
+agent {
+label {
+		label "built-in"
+		customWorkspace "/data/project-myapp"
+		
+		}
+		}
+		
+	stages {
+		
+		stage ('CLEAN_OLD_M2') {
+			
+			steps {
+				sh "rm -rf /home/saccount/.m2/repository"
+				
+			}
+			
+		}
+	
+		stage ('MAVEN_BUILD') {
+		
+			steps {
+						
+						sh "mvn clean package"
+			
+			}
+			
+		
+		}
+		
+		stage ('COPY_WAR_TO_Server'){
+		
+				steps {
+						
+						sh "scp -r target/LoginWebApp.war saccount@10.0.2.51:/data/project/wars"
+
+						}
+				
+				}
+	
+	
+	
+	}
+		
 }
